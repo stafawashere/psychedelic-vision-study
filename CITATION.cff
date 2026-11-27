@@ -5,6 +5,7 @@ type: "software"
 authors:
    - family-names: "Mustafa"
      given-names: "Mahfuj"
+     orcid: "https://orcid.org/0009-0002-1782-2580"
 abstract: "Code and reproducibility materials for a study of whether a frozen Stable Diffusion 1.5 model can transform a forest road into repeating texture and return to the initial rendered scene."
 url: "https://github.com/stafawashere/psychedelic-vision-study"
 license: "MIT"
