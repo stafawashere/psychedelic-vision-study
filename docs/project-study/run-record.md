@@ -13,4 +13,4 @@ This actually showed up in the hold scores. The old mean change of 6.15 belonged
 
 A passing verification script tells me the implementation checks passed. The frame comparison tells me what image the run actually produced. I want both attached to the claim.
 
-[Archived seed 0 config](../../../results/seed-0/config.yaml) · [Full scoreboard](../../experiments/results.md)
+[Archived seed 0 config](../../results/seed-0/config.yaml) · [Full scoreboard](experiments/results.md)

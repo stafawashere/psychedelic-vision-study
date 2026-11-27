@@ -14,4 +14,4 @@ The noise walk cycles through three anchors. Frame index times phase gives its p
 
 Now the drift ending makes sense. Still a forest, but fine-detail match only 0.028. I have to name the noise walk whenever I use that result. It's an extra intervention.
 
-[Noise walk code](../../../src/render/engine.py) · [Drift comparison](../../experiments/results.md)
+[Noise walk code](../../src/render/engine.py) · [Drift comparison](experiments/results.md)

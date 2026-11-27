@@ -10,4 +10,4 @@ I tried the residual route. Image SD dropped to 0.0028 against 0.1574 on the for
 
 Depth 8 is back near full resolution. It's close to the final noise prediction too. A stronger intervention there can wipe out the picture before I ever get to ask whether the geometry improved.
 
-[Gain hook](../../../src/render/hooks.py) · [Gain experiments](../../experiments/design.md)
+[Gain hook](../../src/render/hooks.py) · [Gain experiments](experiments/design.md)

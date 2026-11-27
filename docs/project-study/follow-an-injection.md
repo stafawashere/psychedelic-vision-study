@@ -10,4 +10,4 @@ In frequency space the magnitude says how much of each frequency I have. Phase h
 
 Re-scoring the original eight PNGs gives a mean signed mirror of 0.120. On the matched seeds the scrambled version gave about 0.071, using the unrounded scores. I can say where I put the pattern in and where I measured it coming out. The exact block where it fell apart is still an open question.
 
-[Injection settings, seed rows and discrepancy](../../experiments/lattice-probe.md)
+[Injection settings, seed rows and discrepancy](experiments/lattice-probe.md)

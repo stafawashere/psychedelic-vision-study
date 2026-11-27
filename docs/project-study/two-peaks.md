@@ -8,4 +8,4 @@ That second guidance peak reached 17.03 at frame 25. The caption still just says
 
 > before I render anything, print the knob against frame number. plotting it against dose hides half the trip.
 
-[Prior mapping](../../../src/core/knobs.py) · [E-6 comparison](../../experiments/design.md)
+[Prior mapping](../../src/core/knobs.py) · [E-6 comparison](experiments/design.md)

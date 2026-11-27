@@ -12,4 +12,4 @@ Same thing with cortical gain. I can multiply a layer's activations. A layer get
 
 > photo = where this branch actually is. caption = roughly what kind of scene belongs here.
 
-[The question and its sources](../../paper/manuscript.md)
+[The question and its sources](paper/manuscript.md)

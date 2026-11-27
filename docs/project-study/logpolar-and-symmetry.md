@@ -10,4 +10,4 @@ In arm B I use a coordinate map on an activation while the UNet is working. That
 
 The prediction for B was an increase in radial fraction or log-polar concentration. On the forest comparison radial fraction went from 0.038 in A to 0.023 in B. So having the right-looking coordinate map on paper didn't mean the final pixels organized around its center.
 
-[Warp](../../../src/render/hooks.py) · [Arm A and B measurements](../../experiments/results.md)
+[Warp](../../src/render/hooks.py) · [Arm A and B measurements](experiments/results.md)

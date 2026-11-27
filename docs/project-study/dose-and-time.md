@@ -10,4 +10,4 @@ The rise and fall have different shapes. Before peak I use exp((t - 4)/1.8). Aft
 
 A hold adds time at the top. That's how I ask if the picture keeps changing once the knobs stop moving.
 
-[Curve](../../../src/core/dose.py) · [Run settings](../../../configs/deliverable_fall3.yaml)
+[Curve](../../src/core/dose.py) · [Run settings](../../configs/deliverable_fall3.yaml)

@@ -13,4 +13,4 @@ So lowering prior precision from the upper setting of 12 toward 6 still leaves g
 
 Why filter the caption? If "spiral" gets into the text, the model already has a way to draw one before I test a single knob. The words in this experiment describe the input road. Any geometry has to come by another route.
 
-[Caption filter and denoising loop](../../../src/render/engine.py)
+[Caption filter and denoising loop](../../src/render/engine.py)

@@ -10,4 +10,4 @@ The actual jittered seed 0 ending scored 0.0318 RMSE and 0.686 detail. I keep th
 
 > before blaming the loop for missing the road, see what moving the road does to the ruler.
 
-[Jitter implementation](../../../run.py) · [Jitter-only floor](../../experiments/measurements.md)
+[Jitter implementation](../../run.py) · [Jitter-only floor](experiments/measurements.md)

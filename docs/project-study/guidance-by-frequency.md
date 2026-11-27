@@ -12,4 +12,4 @@ I tried high ratios of 0, 1 and 2, three seeds at each setting. The image's high
 
 There's another catch. More high-frequency energy could just mean I made more tiny marks. M-2 asks whether those marks line up with the actual branches. Its scores stayed between 0.008 and 0.013 across all nine frames. The goal was 0.6. That small probe already answered the question I needed for the longer 66-frame run.
 
-[Guidance split](../../../src/render/engine.py) · [C-3 decision](../../experiments/design.md)
+[Guidance split](../../src/render/engine.py) · [C-3 decision](experiments/design.md)

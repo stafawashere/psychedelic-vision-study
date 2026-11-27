@@ -10,4 +10,4 @@ The late blocks look tempting. Eight pixels per cell there puts the floor at 35.
 
 So E-3 closed at the arithmetic check. No kernel render was needed to find that mismatch. That's a different outcome from building a measurable kernel and watching its prediction fail.
 
-[Kernel decision](../../experiments/design.md)
+[Kernel decision](experiments/design.md)

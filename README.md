@@ -3,13 +3,13 @@
 <p align="center">Can a frozen Stable Diffusion model turn a forest road into organized geometry and recover the same view?</p>
 
 <p align="center">
-   <a href="docs/paper/forest-road-preprint.pdf">Read the paper</a> ·
-   <a href="docs/README.md">Explore the research guide</a> ·
+   <a href="docs/project-study/paper/forest-road-preprint.pdf">Read the paper</a> ·
+   <a href="docs/project-study/README.md">Explore the research guide</a> ·
    <a href="#reproduce-the-study">Reproduce the study</a>
 </p>
 
 <p align="center">
-   <a href="assets/forest-road-seed-0.gif"><img src="docs/paper/forest-road-frames.png" width="900" alt="Seed 0 starts with a clear forest road, turns to repeating green texture at peak, and ends with the road back in view."></a>
+   <a href="assets/forest-road-seed-0.gif"><img src="docs/project-study/paper/forest-road-frames.png" width="900" alt="Seed 0 starts with a clear forest road, turns to repeating green texture at peak, and ends with the road back in view."></a>
    <br>
    <sub>Seed 0 · Frame 00: first render · Frame 13: peak · Frame 39: return</sub>
    <br>
@@ -28,19 +28,19 @@ Inspired by theories of psychedelic perception, the experiment uses a simulated 
 | 1 | 2.69 | 0.0329 | 0.813 | [Frames](results/seed-1/frames) · [Config](results/seed-1/config.yaml) |
 | 2 | 1.71 | 0.0262 | 0.872 | [Frames](results/seed-2/frames) · [Config](results/seed-2/config.yaml) |
 
-Return required RMSE ≤ 0.05 and detail match ≥ 0.80 against each seed's first render. Fine detail faded before the planned cutoff, and peak repetition averaged 1.80 against a target above 5. In a separate experiment, moving the starting noise increased motion and the resulting full run missed both return thresholds. [Full results and controls](docs/experiments/results.md)
+Return required RMSE ≤ 0.05 and detail match ≥ 0.80 against each seed's first render. Fine detail faded before the planned cutoff, and peak repetition averaged 1.80 against a target above 5. In a separate experiment, moving the starting noise increased motion and the resulting full run missed both return thresholds. [Full results and controls](docs/project-study/experiments/results.md)
 
 ## Navigate the research guide
 
-The [research guide](docs/README.md) is the index for the paper, experiment records, and study notebook. Start with the route that matches what you want to do.
+The [research guide](docs/project-study/README.md) is the index for the paper, experiment records, and study notebook. Start with the route that matches what you want to do.
 
 | I want to… | Where to start |
 | --- | --- |
-| Read the study | The paper covers the question, methods, and findings. [PDF](docs/paper/forest-road-preprint.pdf) · [Web manuscript](docs/paper/manuscript.md) |
-| Verify a result | Check the frame-by-frame and seed-by-seed results, then use the metric definitions and downloadable evidence. [Results](docs/experiments/results.md) · [Metrics](docs/experiments/measurements.md) · [Evidence ZIP](docs/paper/forest-road-supplement.zip) |
-| Follow the experimental decisions | See how the controls were chosen and why follow-up probes stopped, including the test that injected a hexagonal lattice into the U-Net. [Experiment design](docs/experiments/design.md) · [Lattice injection](docs/experiments/lattice-probe.md) |
-| Understand the implementation | The notebook traces a frame from latent encoding to output, then walks through scoring and follow-up probes. [Study notebook](docs/notes/README.md) · [Original VAE notes](docs/notes/vae-latent.md) · [Original U-Net notes](docs/notes/unet.md) |
-| Browse the writing process | Read earlier explanations and working notes behind the manuscript. [Working drafts](docs/drafts/README.md) |
+| Read the study | The paper covers the question, methods, and findings. [PDF](docs/project-study/paper/forest-road-preprint.pdf) · [Web manuscript](docs/project-study/paper/manuscript.md) |
+| Verify a result | Check the frame-by-frame and seed-by-seed results, then use the metric definitions and downloadable evidence. [Results](docs/project-study/experiments/results.md) · [Metrics](docs/project-study/experiments/measurements.md) · [Evidence ZIP](docs/project-study/paper/forest-road-supplement.zip) |
+| Follow the experimental decisions | See how the controls were chosen and why follow-up probes stopped, including the test that injected a hexagonal lattice into the U-Net. [Experiment design](docs/project-study/experiments/design.md) · [Lattice injection](docs/project-study/experiments/lattice-probe.md) |
+| Understand the implementation | The notebook traces a frame from latent encoding to output, then walks through scoring and follow-up probes. [Study notebook](docs/project-study/README.md#study-notebook) |
+| Browse the writing process | Read earlier explanations and working notes behind the manuscript. [Working drafts](docs/project-study/drafts/README.md) |
 
 ## Reproduce the study
 

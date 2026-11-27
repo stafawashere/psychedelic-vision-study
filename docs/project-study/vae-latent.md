@@ -1,4 +1,5 @@
-# VAE & Latent Space Study
+# VAE and latent space
+
 Stable Diffusion thinks in small compressed code instead of raw pixels. The VAE handles compressing pixels into latent space, then decompressingback into pixels. The UNet generates every feature in between that process of compressing and decompressing.
 
 VAE handles compression and rendering. Kind of like the eyes.

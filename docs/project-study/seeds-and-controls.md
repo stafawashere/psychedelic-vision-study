@@ -12,4 +12,4 @@ Change ONLY the seed between arcs and I can see how much depends on that choice.
 
 The 40th frame has already inherited something from the 39th. Counting 40 frames per seed as 40 independent successes would make one run sound like a much bigger experiment than it was.
 
-[Original frames and comparison scores](../../experiments/results.md)
+[Original frames and comparison scores](experiments/results.md)

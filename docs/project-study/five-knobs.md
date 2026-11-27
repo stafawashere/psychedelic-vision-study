@@ -16,4 +16,4 @@ At peak D = 1. I can plug that into the mapping before I even load a photo.
 
 Depth has the same starting and ending index in this config. Four knobs actually move. Denoise strength also rides the curve as a rendering setting, so turning the curve up changes several things together. If I want to know what gain did by itself I need a separate comparison.
 
-[Knob mapping](../../../src/core/knobs.py) · [Actual blend](../../../src/render/engine.py)
+[Knob mapping](../../src/core/knobs.py) · [Actual blend](../../src/render/engine.py)

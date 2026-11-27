@@ -8,4 +8,4 @@ The harder prediction comes from models of visual cortex. In the model Bressloff
 
 My gain hook has a simpler job. Multiply the output of one block. It can make a feature that already exists louder. There's nowhere in that multiplication to say "put the next bright patch 24 pixels to the left." If a particular spacing shows up, it has to come from somewhere else in the system. That's why I wanted one arm with no map added and a second arm where I tell you exactly what spatial assumption I put in.
 
-[Model settings](../../configs/deliverable_fall3.yaml) · [Arm definitions and measurements](../experiments/results.md)
+[Model settings](../../../configs/deliverable_fall3.yaml) · [Arm definitions and measurements](../experiments/results.md)

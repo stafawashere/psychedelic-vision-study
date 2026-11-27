@@ -8,4 +8,4 @@ The split-guidance setting has another version of this problem. A value can come
 
 > first break the exact behavior the check claims to catch. then restore it and check again.
 
-[Drift checks](../../../tests/test_noise_drift.py) · [Guidance checks](../../../tests/test_guidance_split.py)
+[Drift checks](../../tests/test_noise_drift.py) · [Guidance checks](../../tests/test_guidance_split.py)

@@ -1,4 +1,5 @@
-# UNet Study
+# UNet anatomy and hooks
+
 UNet corresponds to our cortex and how we build a percept from internal data. Our cortex takes internal data and instead of painting a picture it spots errors/mismatches and clears it until its certain the internal data matches its interpitation/prediction. UNet simillarly predicts noise and which then scheduler subtracts from the noisy latent repeatedly.
 > Predict the error, and subtract it
 
@@ -36,4 +37,3 @@ In a down block I amplify ONLY output[0] (the forward summary) and pass output[1
 - arm A = pure emergence, NO warp. honest. does geometry show up from knobs alone? if not thats my negative result.
 - arm B = `_logpolar_warp`, bakes in the retina->cortex (log-polar) map so straight cortical stripes become rings/spirals/rays = Kluver form constants. its a DECLARED assumption, I partly built the geometry in. never the headline, never mixed with A.
 > arm A asks "does it emerge for free". arm B asks "if I grant the one real piece of wiring, does the rest follow".
-

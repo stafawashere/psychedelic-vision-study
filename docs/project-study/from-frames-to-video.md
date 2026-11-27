@@ -12,4 +12,4 @@ The model makes 40 numbered PNGs. The dose curve assigns each one a simulated ti
 
 The GIF is handy for seeing the whole arc. The numbered frames tell me which part of that arc earned a score.
 
-[Video assembly](../../../src/measure/make_video.py) · [Seed 0 frames](../../../results/seed-0/frames)
+[Video assembly](../../src/measure/make_video.py) · [Seed 0 frames](../../results/seed-0/frames)

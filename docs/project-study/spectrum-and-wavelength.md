@@ -10,4 +10,4 @@ A clean 24 px lattice reads 24.4 px. Give the instrument a broad band over a slo
 
 On seed 0 the peak bump was 0.99, up from 0.42 at frame 00. That's evidence of extra repetition in this run. The number 20.5 px beside it gets a lot harder to interpret when seed 1 lands at 46.5.
 
-[Calibrations and measurement traps](../../experiments/measurements.md)
+[Calibrations and measurement traps](experiments/measurements.md)

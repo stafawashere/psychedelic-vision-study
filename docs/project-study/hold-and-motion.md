@@ -10,4 +10,4 @@ Mean change tells me how different consecutive frames are on a 0 to 255 gray sca
 
 With ordinary noise the change decayed at all three seeds. With drift the frames changed more and still matched at 0.8922, but only two of three sustained the change. The verdict on those holds was standing. A bigger number on motion didn't give me a traveling wave.
 
-[Hold results](../../experiments/results.md) · [M-3](../../experiments/measurements.md)
+[Hold results](experiments/results.md) · [M-3](experiments/measurements.md)

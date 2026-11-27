@@ -10,4 +10,4 @@ Now the flat-ds experiment makes sense. Keep ds at 0.45 and I enter closer to th
 
 > simulated minute picks the knobs. denoising timestep picks the next latent.
 
-[Scheduler calls](../../../src/render/engine.py) · [Flat-ds comparison](../../experiments/design.md)
+[Scheduler calls](../../src/render/engine.py) · [Flat-ds comparison](experiments/design.md)

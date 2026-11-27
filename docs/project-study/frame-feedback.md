@@ -10,4 +10,4 @@ Next frame I encode that copy and the fresh photo separately, then blend their l
 
 > saved frame = what came out. feedback copy = what the next frame gets to use.
 
-[Follow the two copies in the runner](../../../run.py)
+[Follow the two copies in the runner](../../run.py)

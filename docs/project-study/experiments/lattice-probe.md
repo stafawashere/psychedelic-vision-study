@@ -44,4 +44,4 @@ That changed what seemed worth building. C-1, C-2, C-5, C-11 and E-7 all depende
 
 The test covers one block, one lattice family and one injection schedule. Turning up gain at that same block clearly changes the image. What failed here was getting a known spatial layout through to the pixels.
 
-[Archived injection and phase-scramble PNGs](../../results/lattice-probe/)
+[Archived injection and phase-scramble PNGs](../../../results/lattice-probe/)

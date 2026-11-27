@@ -10,4 +10,4 @@ The depth experiments didn't give me figures, including at the bottleneck. Multi
 
 That result limits this particular intervention. It can't tell me whether people see figures or how a human visual system builds one.
 
-[Depth experiments](../../experiments/design.md) · [Fixed-depth config](../../../configs/deliverable_fall3.yaml)
+[Depth experiments](experiments/design.md) · [Fixed-depth config](../../configs/deliverable_fall3.yaml)

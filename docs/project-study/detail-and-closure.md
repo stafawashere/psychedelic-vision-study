@@ -10,4 +10,4 @@ For return I use frame 00 OF THAT SEED. It's already been rendered once. Compare
 
 Seed 1 ended at 0.0329 pixel error and 0.813 detail. Both count. The limits are 0.05 and 0.8. It only had 0.013 to spare on detail. That's why I write "three seeds closed" and leave the fourth seed an open question.
 
-[All three seed rows](../../experiments/results.md)
+[All three seed rows](experiments/results.md)
