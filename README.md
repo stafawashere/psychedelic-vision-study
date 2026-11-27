@@ -4,7 +4,7 @@
 
 <p align="center">
    <a href="https://mahfujmustafa.dev/research/psychedelic-model">Official study site</a> ·
-   <a href="docs/project-study/paper/forest-road-preprint.pdf">Read the paper</a> ·
+   <a href="https://doi.org/10.5281/zenodo.24592604">Paper on Zenodo</a> ·
    <a href="docs/project-study/README.md">Explore the research guide</a> ·
    <a href="#reproduce-the-study">Reproduce the study</a>
 </p>
@@ -78,4 +78,6 @@ The runs write PNG frames, a resolved config, an MP4, and a GIF to `output/fall3
 
 The code and configuration files are available under the [MIT License](LICENSE). The original paper, study notes, figures, and experiment data by Mahfuj Mustafa are available under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The source images in `resources/` and other third-party materials are excluded from these grants.
 
-Use [CITATION.cff](CITATION.cff) to cite the software.
+Mustafa, Mahfuj. (2026). *Can a forest road turn into organized geometry and come back?* (Version 1.0) [Preprint]. Zenodo. [10.5281/zenodo.24592604](https://doi.org/10.5281/zenodo.24592604)
+
+Use the top-level metadata in [CITATION.cff](CITATION.cff) to cite the software.

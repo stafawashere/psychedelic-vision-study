@@ -4,7 +4,7 @@ Can a frozen image model leave a forest road, make organized geometry and find i
 
 | What you want to do | Start here |
 |---|---|
-| Read the study | [Paper (PDF)](paper/forest-road-preprint.pdf) · [Manuscript](paper/manuscript.md) · [Evidence supplement](paper/forest-road-supplement.zip) |
+| Read the study | [Zenodo preprint](https://doi.org/10.5281/zenodo.24592604) · [Paper (PDF)](paper/forest-road-preprint.pdf) · [Manuscript](paper/manuscript.md) · [Evidence supplement](paper/forest-road-supplement.zip) |
 | Check a result | [Frame and seed scores](experiments/results.md) · [Metric definitions](experiments/measurements.md) |
 | Understand the experiment | [Design and decisions](experiments/design.md) · [Lattice injection](experiments/lattice-probe.md) |
 | Learn how the model works | [Study notebook](#study-notebook) |

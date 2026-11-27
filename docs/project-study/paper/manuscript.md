@@ -3,6 +3,8 @@
 **Mahfuj Mustafa**  
 Independent student research
 
+[Zenodo preprint, version 1.0](https://doi.org/10.5281/zenodo.24592604)
+
 ## Abstract
 
 I started a frozen Stable Diffusion 1.5 model from a photo of a forest road and asked how far it could get from that scene while the prompt still described the same road. My prediction was that changing the weight of the photo, the caption and the model's own activity could produce a period of organized geometry, followed by a return to the starting scene. Dose here is a number I feed the model. It sets how the knobs move over 40 frames. I ran the same schedule at three starting seeds. At peak, all three renders developed more periodic texture than the photo. The average spectral bump was 1.80 against 0.44 for the photo, below my target of 5. Reflection and rotation scores stayed near zero. When the dose fell, all three runs passed both tests for return to the first rendered frame. Mean pixel error was 0.0277 and mean fine-detail match was 0.846. A separate intervention made the peak move more, but its full arc missed return. The result is a reversible transition into repeating texture on this photo. The experiment also gives me a place to look for why the stronger prediction failed. Even a symmetric lattice put directly into the first UNet block lost its symmetry by the time it reached the image.
