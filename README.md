@@ -3,6 +3,7 @@
 <p align="center">Can a frozen Stable Diffusion model turn a forest road into organized geometry and recover the same view?</p>
 
 <p align="center">
+   <a href="https://mahfujmustafa.dev/research/psychedelic-model">Official study site</a> ·
    <a href="docs/project-study/paper/forest-road-preprint.pdf">Read the paper</a> ·
    <a href="docs/project-study/README.md">Explore the research guide</a> ·
    <a href="#reproduce-the-study">Reproduce the study</a>
