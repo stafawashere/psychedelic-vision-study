@@ -1,0 +1,326 @@
+from __future__ import annotations
+import re
+import warnings
+from . import hooks
+import numpy as np
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from diffusers import DDIMScheduler, StableDiffusionPipeline
+from ..core.knobs import Knobs
+
+
+_DATATYPES = {
+    "float32": torch.float32,
+    "float16": torch.float16,
+    "bfloat16": torch.bfloat16,
+}
+
+BLIP_MODEL = "Salesforce/blip-image-captioning-large"
+DENOISE_STEPS = 30 
+BIASED_WORDS = frozenset(
+    {
+        "fractal", "fractals", "tunnel", "tunnels", "spiral", "spirals",
+        "lattice", "lattices", "grid", "grids", "honeycomb", "tessellation",
+        "tessellated", "kaleidoscope", "kaleidoscopic", "mandala", "mandalas",
+        "geometry", "geometric", "geometrical", "symmetry", "symmetrical",
+        "symmetric", "web", "webs", "mesh", "swirl", "swirls", "swirling",
+        "vortex", "vortices", "spiraling", "spiralling", "checkerboard",
+        "being", "beings", "entity", "entities", "alien", "aliens", "creature",
+        "creatures", "elf", "elves", "deity", "deities", "god", "gods", "angel",
+        "angels", "demon", "demons", "spirit", "spirits", "figure", "figures",
+        "psychedelic", "psychedelics", "dmt", "lsd", "trippy", "trip", "tripping",
+        "hallucination", "hallucinations", "hallucinatory", "hallucinate",
+        "hallucinating", "sacred", "cosmic", "mystical", "visionary", "ethereal",
+        "surreal", "surrealist", "dreamlike", "otherworldly", "psychotropic",
+    }
+)
+
+
+def _empty_cache(device) -> None:
+    name = getattr(device, "type", None) or str(device)
+    if name == "mps" and torch.backends.mps.is_available():
+        torch.mps.empty_cache()
+
+
+def _to_device(module: torch.nn.Module, device: str) -> None:
+    module.to(device)
+
+
+def _compute_dtype(pipe: StableDiffusionPipeline) -> torch.dtype:
+    return next(pipe.unet.parameters()).dtype
+
+
+def _vae_dtype(pipe: StableDiffusionPipeline) -> torch.dtype:
+    return next(pipe.vae.parameters()).dtype
+
+
+def _strip_bias(text: str) -> str:
+    tokens = re.split(r"(\W+)", text)
+    removed = [t for t in tokens if t.lower() in BIASED_WORDS]
+    kept = [t for t in tokens if t.lower() not in BIASED_WORDS]
+    cleaned = re.sub(r"\s+", " ", "".join(kept)).strip(" ,.;:-")
+
+    if removed:
+        warnings.warn(
+            f"caption_scene stripped biased vocabulary {sorted(set(removed))} "
+            f"from the caption (integrity rule #2)",
+            stacklevel=2,
+        )
+    if not cleaned:
+        raise ValueError(
+            f"caption {text!r} contained only biased vocabulary; cannot build a "
+            "neutral scene caption"
+        )
+    return cleaned
+
+
+def load_pipeline(model_id: str, device: str, datatype: str, scheduler: str):
+    if scheduler != "ddim":
+        raise ValueError(f"only the deterministic ddim scheduler is supported, got {scheduler!r}")
+
+    torch_datatype = _DATATYPES.get(datatype)
+    if torch_datatype is None:
+        raise ValueError(f"unsupported datatype {datatype!r}; expected one of {sorted(_DATATYPES)}")
+
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch_datatype)
+    pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
+    pipe.safety_checker = None
+    pipe.feature_extractor = None
+
+    pipe = pipe.to(device)
+    pipe.vae.to(torch.float32)
+    pipe.enable_attention_slicing(1)
+    pipe.vae.enable_slicing()
+    return pipe
+
+
+def caption_scene(scene_path: str) -> str:
+    from transformers import BlipForConditionalGeneration, BlipProcessor
+
+    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    processor = BlipProcessor.from_pretrained(BLIP_MODEL)
+    model = BlipForConditionalGeneration.from_pretrained(
+        BLIP_MODEL, torch_dtype=torch.float32
+    )
+    _to_device(model, device)
+
+    image = Image.open(scene_path).convert("RGB")
+    inputs = processor(images=image).convert_to_tensors("pt").to(device)
+    with torch.no_grad():
+        out = model.generate(**inputs, max_new_tokens=30)
+
+    caption = processor.decode(out[0], skip_special_tokens=True)
+    del model, processor, inputs, out, image
+    _empty_cache(device)
+
+    return _strip_bias(caption)
+
+
+# process (pre) the pill (image) then downscale and encode the tensor for the latent then run thru denoise loop, latent blend (bleed), then the hooks (gain)
+# then decode and unscale the modified latent and process (post) the tensor into a pill (image)
+
+# preprocess pil then encode tensor for latent
+def _preprocess(image: Image.Image, size: tuple[int, int]) -> torch.Tensor: # preprocess pil image into tensor
+    image = image.convert("RGB").resize(size, Image.Resampling.LANCZOS)
+    arr = np.asarray(image, dtype=np.float32) / 255.0
+    t = torch.from_numpy(arr).permute(2, 0, 1).unsqueeze(0)
+    return t * 2.0 - 1.0
+
+def _encode(pipe: StableDiffusionPipeline, image_t: torch.Tensor, generator: torch.Generator) -> torch.Tensor: # encode tensor into latent
+    device = getattr(pipe, "device", torch.device("cpu"))
+    image_t = image_t.to(device=device, dtype=_vae_dtype(pipe))
+    latent_dist = pipe.vae.encode(image_t).latent_dist
+    z = latent_dist.sample(generator=generator)
+    z = z * pipe.vae.config.scaling_factor
+    return z.to(_compute_dtype(pipe))
+
+# decode latent then postprocess tensor into pil
+def _postprocess(sample: torch.Tensor) -> Image.Image: # postprocess tensor into pil
+    sample = (sample / 2.0 + 0.5).clamp(0.0, 1.0)
+    arr = sample.squeeze(0).permute(1, 2, 0).float().cpu().numpy()
+    return Image.fromarray((arr * 255.0).round().astype(np.uint8))
+
+def _decode(pipe: StableDiffusionPipeline, latents: torch.Tensor) -> torch.Tensor: # decode latent into tensor
+    latents = latents.to(_vae_dtype(pipe)) / pipe.vae.config.scaling_factor
+    return pipe.vae.decode(latents).sample
+
+
+def _slerp(a: torch.Tensor, b: torch.Tensor, t: float) -> torch.Tensor:
+    # spherical interpolation, so an interpolated latent keeps unit norm. a naive lerp does not:
+    # its midpoint reads std ~0.71 against slerp's ~1.0035, and a shrunken noise tensor is a
+    # different noise level, not a different noise sample.
+    a_flat = a.flatten().to(torch.float32)
+    b_flat = b.flatten().to(torch.float32)
+
+    cos_omega = torch.dot(a_flat, b_flat) / (a_flat.norm() * b_flat.norm())
+    cos_omega = cos_omega.clamp(-1.0 + 1e-7, 1.0 - 1e-7)
+    omega = torch.arccos(cos_omega)
+    sin_omega = torch.sin(omega)
+
+    # near-parallel anchors would divide by zero here. never fires for the near-orthogonal draws
+    # this is used with; it exists so a degenerate draw degrades instead of producing inf.
+    if sin_omega < 1e-6:
+        return ((1.0 - t) * a_flat + t * b_flat).reshape(a.shape)
+
+    scale_a = torch.sin((1.0 - t) * omega) / sin_omega
+    scale_b = torch.sin(t * omega) / sin_omega
+
+    return (scale_a * a_flat + scale_b * b_flat).reshape(a.shape)
+
+
+def _drifting_noise(shape, anchors: int, phase: float, frame_index: int, seed: int) -> torch.Tensor:
+    # E-8. a declared deterministic noise substrate outside the 5 knobs: the initial latent noise
+    # walks a closed slerp path through `anchors` fixed draws instead of being redrawn per frame.
+    # anchors are redrawn from `seed` on every call so this is a pure function of its arguments.
+    if anchors < 1:
+        raise ValueError("anchors must be >= 1")
+
+    generator = torch.Generator(device="cpu").manual_seed(seed)
+    fields = [torch.randn(shape, generator=generator, dtype=torch.float32) for _ in range(anchors)]
+
+    position = frame_index * phase
+    segment = int(position // 1.0) % anchors
+    fraction = float(position - (position // 1.0))
+
+    return _slerp(fields[segment], fields[(segment + 1) % anchors], fraction)
+
+
+def _lowpass(x: torch.Tensor, sigma: float) -> torch.Tensor:
+    # separable gaussian in the latent grid, not an fft band split: F.conv2d is native on MPS,
+    # float64 is unsupported there, and reflect padding keeps the operator free of a wrap-around
+    # origin (arm A machinery must never introduce one).
+    radius = int(np.ceil(3.0 * sigma))
+    offsets = torch.arange(-radius, radius + 1, dtype=torch.float32, device=x.device)
+    weights = torch.exp(-(offsets ** 2) / (2.0 * sigma * sigma))
+    weights = weights / weights.sum()
+
+    channels = x.shape[1]
+    padded = F.pad(x, (radius, radius, radius, radius), mode="reflect")
+
+    horizontal = weights.reshape(1, 1, 1, -1).expand(channels, 1, 1, -1)
+    blurred = F.conv2d(padded, horizontal, groups=channels)
+
+    vertical = weights.reshape(1, 1, -1, 1).expand(channels, 1, -1, 1)
+    return F.conv2d(blurred, vertical, groups=channels)
+
+
+def _split_guidance(direction: torch.Tensor, sigma: float, high_ratio: float) -> torch.Tensor:
+    # C-3: level-resolved precision. CFG pushes every spatial band by one scalar, so the fine band
+    # is the only place a band-resolved precision could act. exactly reconstructing by construction,
+    # since high is the residual, which makes high_ratio 1.0 the identity.
+    if sigma <= 0.0:
+        return direction
+
+    low = _lowpass(direction, sigma)
+
+    return low + high_ratio * (direction - low)
+
+
+@torch.no_grad()
+def render_frame(
+    pipe: StableDiffusionPipeline,
+    x_scene: Image.Image,
+    prev_frame: Image.Image,
+    caption: str,
+    knobs: Knobs,
+    seed: int,
+    *,
+    steps: int = DENOISE_STEPS,
+    logpolar: bool = False,
+    soft_clip: bool = False,
+    denoise_strength: float | None = None,
+    gain_mode: str = "forward",
+    initial_noise: torch.Tensor | None = None,
+    guidance_sigma: float = 0.0,
+    guidance_high_ratio: float = 1.0,
+) -> Image.Image: # one frame: blend prev + scene in latent, denoise, decode to rgb
+    device = getattr(pipe, "device", torch.device("cpu"))
+    rng = torch.Generator(device="cpu").manual_seed(seed) # mps was being buggy so im gonna only use cpu for this change if ur device prefers it
+
+    width, height = x_scene.size
+    scene_pixels = _preprocess(x_scene, (width, height))
+    prev_pixels = _preprocess(prev_frame, (width, height))
+    scene_latent = _encode(pipe, scene_pixels, rng)
+    prev_latent = _encode(pipe, prev_pixels, rng)
+
+    scene_weight = knobs.scene_precision
+    prev_weight = knobs.recurrence
+    total_weight = scene_weight + prev_weight
+    if total_weight <= 0:
+        blended_latent = scene_latent
+    else:
+        scaled_scene = scene_weight * scene_latent
+        scaled_prev = prev_weight * prev_latent
+        blended_latent = (scaled_scene + scaled_prev) / total_weight
+
+    del scene_pixels, prev_pixels, scene_latent, prev_latent
+    _empty_cache(device)
+
+    # default: recurrence sets how far back into noise we start (ceiling 0.85, validated path).
+    # explicit denoise_strength DECOUPLES noise-start from recurrence (lets recurrence stay a pure
+    # blend weight while we tune crystallization); capped 0.92 so we never under-denoise to NaN.
+    if denoise_strength is None:
+        denoise_strength = min(0.92, max(0.2, 0.2 + knobs.recurrence))
+    else:
+        denoise_strength = min(0.92, max(0.05, denoise_strength))
+    pipe.scheduler.set_timesteps(steps, device=device)
+
+    active_step_count = min(round(steps * denoise_strength), steps)
+    first_step_index = max(steps - active_step_count, 0)
+    denoise_timesteps = pipe.scheduler.timesteps[first_step_index:]
+    completed_denoise = len(denoise_timesteps)
+    if completed_denoise == 0:
+        denoise_timesteps = pipe.scheduler.timesteps[-1:]
+
+    if initial_noise is None:
+        initial_noise = torch.randn(blended_latent.shape, generator=rng, dtype=blended_latent.dtype)
+    elif tuple(initial_noise.shape) != tuple(blended_latent.shape):
+        raise ValueError(
+            f"initial_noise shape {tuple(initial_noise.shape)} does not match the blended latent "
+            f"{tuple(blended_latent.shape)}"
+        )
+
+    initial_noise = initial_noise.to(device=device, dtype=blended_latent.dtype)
+    latent = pipe.scheduler.add_noise(blended_latent, initial_noise, denoise_timesteps[:1]) # add noise ontop of the blended latent (previous + current scene) to create initial latent
+
+    guidance_scale = knobs.prior_precision
+    use_guidance = guidance_scale > 1.0
+    prompt_encoding = pipe.encode_prompt(caption, device, 1, use_guidance, None)
+    prompt_embeds, negative_embeds = (
+        prompt_encoding if isinstance(prompt_encoding, tuple) else (prompt_encoding, None)
+    )
+
+    if use_guidance and negative_embeds is not None:
+        text_embeddings = torch.cat([negative_embeds, prompt_embeds])
+    else:
+        text_embeddings = prompt_embeds
+        use_guidance = use_guidance and negative_embeds is not None
+
+    hook_handles: list = []
+    if knobs.gain != 1.0:
+        hook_handles = hooks.attach(pipe.unet, knobs.depth, knobs.gain, logpolar, soft_clip, gain_mode) or []
+
+    try:
+        for timestep in denoise_timesteps:
+            unet_input = torch.cat([latent] * 2) if use_guidance else latent
+            unet_input = pipe.scheduler.scale_model_input(unet_input, timestep)
+            noise_prediction = pipe.unet(unet_input, timestep, encoder_hidden_states=text_embeddings).sample # predict noise (hooks take effect here)
+
+            if use_guidance:
+                unconditional_pred, conditional_pred = noise_prediction.chunk(2)
+                guidance_direction = conditional_pred - unconditional_pred
+                guidance_direction = _split_guidance(guidance_direction, guidance_sigma, guidance_high_ratio)
+                noise_prediction = unconditional_pred + guidance_scale * guidance_direction # base + distance * direction
+                
+            latent = pipe.scheduler.step(noise_prediction, timestep, latent, generator=rng).prev_sample # subtract the presdicted noise from latent
+            latent = torch.nan_to_num(latent, nan=0.0, posinf=4.0, neginf=-4.0) 
+    finally:
+        if hook_handles:
+            hooks.detach(hook_handles)
+
+    frame_pixels = _decode(pipe, latent)
+    result = _postprocess(frame_pixels)
+    _empty_cache(device)
+
+    return result
