@@ -1,0 +1,10 @@
+cff-version: "1.2.0"
+message: "If you use this software in your research, please cite it using the metadata below."
+title: "Psychedelic Vision Study"
+type: "software"
+authors:
+   - family-names: "Mustafa"
+     given-names: "Mahfuj"
+abstract: "Code and reproducibility materials for a study of whether a frozen Stable Diffusion 1.5 model can transform a forest road into repeating texture and return to the initial rendered scene."
+url: "https://github.com/stafawashere/psychedelic-vision-study"
+license: "MIT"

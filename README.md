@@ -72,3 +72,9 @@ The runs write PNG frames, a resolved config, an MP4, and a GIF to `output/fall3
 - [`run.py`](run.py) drives the render sequence. [`src/core/`](src/core/) defines the schedule and controls.
 - [`src/render/`](src/render/) contains the diffusion pipeline and U-Net hooks. [`src/measure/`](src/measure/) scores frames and assembles videos.
 - [`configs/`](configs/) holds experiment settings, [`resources/`](resources/) holds inputs, and [`tests/`](tests/) holds probes and checks.
+
+## License and citation
+
+The code and configuration files are available under the [MIT License](LICENSE). The original paper, study notes, figures, and experiment data by Mahfuj Mustafa are available under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The source images in `resources/` and other third-party materials are excluded from these grants.
+
+Use [CITATION.cff](CITATION.cff) to cite the software.
