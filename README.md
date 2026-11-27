@@ -1,35 +1,74 @@
-# Forest-road diffusion study
+<h1 align="center">Psychedelic Vision Study</h1>
 
-The [research guide](docs/README.md) connects the [paper](docs/paper/forest-road-preprint.pdf), [study notebook](docs/notes/README.md) and [experiment results](docs/experiments/results.md). The study follows a forest road through 40 renders of a frozen Stable Diffusion model and measures the departure, peak and return across three seeds.
+<p align="center">Can a frozen Stable Diffusion model turn a forest road into organized geometry and recover the same view?</p>
 
-## Inspect an existing run
+<p align="center">
+   <a href="docs/paper/forest-road-preprint.pdf">Read the paper</a> ·
+   <a href="docs/README.md">Explore the research guide</a> ·
+   <a href="#reproduce-the-study">Reproduce the study</a>
+</p>
 
-The results folders hold the original 40 PNG frames and resolved configuration for each of three seeds. In each folder, frame 00 is the first render, 13 is the peak, and 39 is the return. The [metric reference](docs/experiments/measurements.md) defines the structure and detail scores.
+<p align="center">
+   <a href="assets/forest-road-seed-0.gif"><img src="docs/paper/forest-road-frames.png" width="900" alt="Seed 0 starts with a clear forest road, turns to repeating green texture at peak, and ends with the road back in view."></a>
+   <br>
+   <sub>Seed 0 · Frame 00: first render · Frame 13: peak · Frame 39: return</sub>
+   <br>
+   <a href="assets/forest-road-seed-0.gif">Watch the full 40-frame sequence</a>
+</p>
 
-| Seed | Run configuration | Archived frames |
-|---|---|---|
-| 0 | [Deliverable](configs/deliverable_fall3.yaml) | [Seed 0](results/seed-0/frames) |
-| 1 | [First repeat](configs/closure_seed1.yaml) | [Seed 1](results/seed-1/frames) |
-| 2 | [Second repeat](configs/closure_seed2.yaml) | [Seed 2](results/seed-2/frames) |
+## What the study found
 
-## Run locally
+**The road came back in all three runs. The peak produced repeating texture and fell short of the geometry, symmetry, and sustained-motion targets.**
 
-Use Python 3.11 and Apple Silicon for the supplied render configurations. Run these commands from the repository root.
+Inspired by theories of psychedelic perception, the experiment uses a simulated dose to change photo weighting, caption guidance, frame feedback, denoising strength, and gain in the first U-Net down block. Every frame reuses the same photo, caption, and frozen Stable Diffusion 1.5 model. The three seeds test how starting noise affects this one scene.
+
+| Seed | Peak repetition | Final pixel error (RMSE) | Final detail match | Archive |
+| --- | ---: | ---: | ---: | --- |
+| 0 | 0.99 | 0.0241 | 0.852 | [Frames](results/seed-0/frames) · [Config](results/seed-0/config.yaml) |
+| 1 | 2.69 | 0.0329 | 0.813 | [Frames](results/seed-1/frames) · [Config](results/seed-1/config.yaml) |
+| 2 | 1.71 | 0.0262 | 0.872 | [Frames](results/seed-2/frames) · [Config](results/seed-2/config.yaml) |
+
+Return required RMSE ≤ 0.05 and detail match ≥ 0.80 against each seed's first render. Fine detail faded before the planned cutoff, and peak repetition averaged 1.80 against a target above 5. In a separate experiment, moving the starting noise increased motion and the resulting full run missed both return thresholds. [Full results and controls](docs/experiments/results.md)
+
+## Navigate the research guide
+
+The [research guide](docs/README.md) is the index for the paper, experiment records, and study notebook. Start with the route that matches what you want to do.
+
+| I want to… | Where to start |
+| --- | --- |
+| Read the study | The paper covers the question, methods, and findings. [PDF](docs/paper/forest-road-preprint.pdf) · [Web manuscript](docs/paper/manuscript.md) |
+| Verify a result | Check the frame-by-frame and seed-by-seed results, then use the metric definitions and downloadable evidence. [Results](docs/experiments/results.md) · [Metrics](docs/experiments/measurements.md) · [Evidence ZIP](docs/paper/forest-road-supplement.zip) |
+| Follow the experimental decisions | See how the controls were chosen and why follow-up probes stopped, including the test that injected a hexagonal lattice into the U-Net. [Experiment design](docs/experiments/design.md) · [Lattice injection](docs/experiments/lattice-probe.md) |
+| Understand the implementation | The notebook traces a frame from latent encoding to output, then walks through scoring and follow-up probes. [Study notebook](docs/notes/README.md) · [Original VAE notes](docs/notes/vae-latent.md) · [Original U-Net notes](docs/notes/unet.md) |
+| Browse the writing process | Read earlier explanations and working notes behind the manuscript. [Working drafts](docs/drafts/README.md) |
+
+## Reproduce the study
+
+### Score the archived frames
+
+Run these commands from the repository root with Python 3.11. The probe scores the start, peak, and return alongside synthetic controls without loading model weights. The verification script checks the implementation.
 
 ```sh
 python3.11 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
-scripts/verify.sh
 .venv/bin/python tests/probe_apex_structure.py results/seed-0/frames 0 13 39
+scripts/verify.sh
 ```
 
-To render the main arc, run `.venv/bin/python run.py configs/deliverable_fall3.yaml`. The render downloads the model weights on first use and writes to `output/fall3/`. The archived comparison frames stay in `results/`.
+### Re-render the three runs
 
-## Project layout
+The archived configs use Apple Silicon (PyTorch MPS) and include the recorded caption. The first run downloads Stable Diffusion 1.5 weights.
 
-- `src/core/` contains the configuration, dose curve and knob definitions.
-- `src/render/` contains the denoiser integration and activation hooks.
-- `src/measure/` contains image metrics and video assembly.
-- `tests/` contains validation checks and experimental probes.
-- `configs/` and `resources/` contain the run settings and input scenes.
-- `docs/` contains study notes, measurements and the lattice experiment.
+```sh
+.venv/bin/python run.py results/seed-0/config.yaml
+.venv/bin/python run.py results/seed-1/config.yaml
+.venv/bin/python run.py results/seed-2/config.yaml
+```
+
+The runs write PNG frames, a resolved config, an MP4, and a GIF to `output/fall3/`, `output/closure_seed1/`, and `output/closure_seed2/`, respectively.
+
+## Code map
+
+- [`run.py`](run.py) drives the render sequence. [`src/core/`](src/core/) defines the schedule and controls.
+- [`src/render/`](src/render/) contains the diffusion pipeline and U-Net hooks. [`src/measure/`](src/measure/) scores frames and assembles videos.
+- [`configs/`](configs/) holds experiment settings, [`resources/`](resources/) holds inputs, and [`tests/`](tests/) holds probes and checks.
